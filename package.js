@@ -11,24 +11,24 @@ Package.describe({
 });
 
 Npm.depends({
-	"rx": "4.0.6",
+  "rx": "4.0.6",
 });
 
 var lib = [
-	'meteor-scheduler',
-	'meteor-async-scheduler',
+  'meteor-scheduler',
+  'meteor-async-scheduler',
 ]
 
-Package.onUse(function(api) {
+Package.onUse(function (api) {
   api.versionsFrom('1.2.1');
   api.use('ecmascript');
-	lib.forEach(function(f){ api.addFiles('lib/'+f+'.js') });
+  lib.forEach(function (f) { api.addFiles('lib/' + f + '.js') });
 });
 
-Package.onTest(function(api) {
-	api.use('ecmascript');
+Package.onTest(function (api) {
+  api.use('ecmascript');
   api.use('tinytest');
   api.use('hermanbanken:rx-meteor');
-	lib.forEach(function(f){ api.addFiles('lib/'+f+'.js') });
+  lib.forEach(function (f) { api.addFiles('lib/' + f + '.js') });
   api.addFiles('tests/rx-meteor-tests.js');
 });
