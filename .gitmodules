@@ -1,0 +1,3 @@
+[submodule "rx-meteor"]
+	path = sample/packages/rx-meteor
+	url = https://github.com/hermanbanken/rx-meteor.git
