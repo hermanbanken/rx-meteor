@@ -11,4 +11,13 @@ and easy to use bindings to Tracker's reactive values and dependencies.
 You can publish an Observable as a Tracker dependency, or use a Tracker
 dependable as input to an Observable.
 
+## TODO's and ideas
+
+- [ ] Implement and test Meteor schedulers
+- [ ] Test what happens when existing Rx code is used
+- [ ] Create Tracker bindings
+- [ ] Test client/server interaction
+- [ ] Create Rx DDP collections
+- [ ] Allow publishing of Observables to client
+
 If you like this package and put it to use, let me know @hermanbanken.
