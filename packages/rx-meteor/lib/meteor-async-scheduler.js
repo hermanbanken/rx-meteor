@@ -1,0 +1,73 @@
+var root = Npm.require("rx"),
+		Scheduler = root.Scheduler,
+		inherits = root.internals.inherits,
+		Disposable = root.Disposable,
+		BinaryDisposable = root.BinaryDisposable,
+		SingleAssignmentDisposable = root.SingleAssignmentDisposable,
+		Rx = root;
+
+if (Meteor && Meteor.bindEnvironment) {
+	console.log("Meteor environment!");
+} else {
+	// runInMeteor = function(cb) { root.setTimeout(cb, 1000 / 60); };
+	// cancelAnimFrame = root.clearTimeout;
+}
+
+function runInMeteor(action) {
+	return setTimeout(action, 0);
+}
+
+function cancelInMeteor(id) {
+	return clearTimeout(id);
+}
+
+/**
+ * Gets a scheduler that schedules schedules 
+ * work in a fiber with bound Meteor environment.
+ */
+Scheduler.meteorAsync = (function () {
+	var MeteorAsyncScheduler = (function (__super__) {
+		inherits(MeteorAsyncScheduler, __super__);
+		function MeteorAsyncScheduler() {
+			__super__.call(this);
+		}
+		
+		function scheduleAction(disposable, action, scheduler, state) {
+			return function schedule() {
+				!disposable.isDisposed && disposable.setDisposable(Disposable._fixup(action(scheduler, state)));
+			};
+		}
+
+		function ClearDisposable(method, id) {
+			this._id = id;
+			this._method = method;
+			this.isDisposed = false;
+		}
+
+		ClearDisposable.prototype.dispose = function () {
+			if (!this.isDisposed) {
+				this.isDisposed = true;
+				this._method.call(null, this._id);
+			}
+		};
+
+		MeteorAsyncScheduler.prototype.schedule = function (state, action) {
+			console.log("MeteorAsyncScheduler#Schedule");
+			var disposable = new SingleAssignmentDisposable(),
+					id = runInMeteor(scheduleAction(disposable, action, this, state));
+			return new BinaryDisposable(disposable, new ClearDisposable(cancelInMeteor, id));
+		};
+
+		MeteorAsyncScheduler.prototype._scheduleFuture = function (state, dueTime, action) {
+			console.log("MeteorAsyncScheduler#ScheduleFuture");
+			if (dueTime === 0) { return this.schedule(state, action); }
+			var disposable = new SingleAssignmentDisposable(),
+					id = root.setTimeout(scheduleAction(disposable, action, this, state), dueTime);
+			return new BinaryDisposable(disposable, new ClearDisposable(root.clearTimeout, id));
+		};
+
+		return MeteorAsyncScheduler;
+	}(Scheduler));
+
+	return new MeteorAsyncScheduler();
+}());
